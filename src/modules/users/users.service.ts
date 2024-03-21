@@ -7,14 +7,16 @@ import { CreateUserDto } from './dto/create-user.dto';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { User } from './entities/user.entity';
 import { plainToInstance } from 'class-transformer';
+import { PrismaService } from 'src/database/prisma.service';
 
 @Injectable()
 export class UsersService {
-  private database: User[] = [];
-  create(createUserDto: CreateUserDto) {
-    const findUser = this.database.find(
-      (user) => user.email === createUserDto.email,
-    );
+  constructor(private prisma: PrismaService) {}
+
+  async create(createUserDto: CreateUserDto) {
+    const findUser = await this.prisma.user.findFirst({
+      where: { email: createUserDto.email },
+    });
 
     if (findUser) {
       throw new ConflictException('email already exists');
@@ -25,39 +27,49 @@ export class UsersService {
       ...createUserDto,
     });
 
-    this.database.push(user);
+    await this.prisma.user.create({
+      data: { ...user },
+    });
     return plainToInstance(User, user);
   }
 
-  findAll() {
-    return this.database;
+  async findAll() {
+    const findUsers = await this.prisma.user.findMany();
+    return plainToInstance(User, findUsers);
   }
 
-  findOne(id: string) {
-    const user = this.database.find((user) => user.id === id);
+  async findOne(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
     if (!user) {
       throw new NotFoundException('user not found');
     }
     return plainToInstance(User, user);
   }
 
-  update(id: string, updateUserDto: UpdateUserDto) {
-    const userIndex = this.database.findIndex((user) => user.id === id);
-    if (userIndex < 0) {
+  async update(id: string, updateUserDto: UpdateUserDto) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+    if (!user) {
       throw new NotFoundException('user not found');
     }
-    this.database[userIndex] = {
-      ...this.database[userIndex],
-      ...updateUserDto,
-    };
-    return plainToInstance(User, this.database[userIndex]);
+    const updateUser = await this.prisma.user.update({
+      where: { id },
+      data: { ...updateUserDto },
+    });
+
+    return plainToInstance(User, updateUser);
   }
 
-  remove(id: string) {
-    const userIndex = this.database.findIndex((user) => user.id === id);
-    if (userIndex < 0) {
+  async remove(id: string) {
+    const user = await this.prisma.user.findUnique({
+      where: { id },
+    });
+    if (!user) {
       throw new NotFoundException('user not found');
     }
-    this.database.splice(userIndex, 1);
+    await this.prisma.user.delete({ where: { id } });
   }
 }
