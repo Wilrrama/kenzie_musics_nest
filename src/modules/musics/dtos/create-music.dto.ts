@@ -8,6 +8,9 @@ export class CreateMusicDTO {
   album: string;
 
   @IsString()
+  artist: string;
+
+  @IsString()
   genre: string;
 
   @IsString()
@@ -23,5 +26,5 @@ export class CreateMusicDTO {
 
   @IsString()
   @IsOptional()
-  user_id?: string;
+  userId?: string;
 }

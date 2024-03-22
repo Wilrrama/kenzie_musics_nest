@@ -4,6 +4,7 @@ export class Music {
   readonly id: string;
   name: string;
   album: string;
+  artist: string;
   genre: string;
   year: string;
   cover_image: string;

@@ -27,6 +27,7 @@ model Music {
   id          String  @id
   name        String
   album       String
+  artist      String
   genre       String
   year        String
   cover_image String?
