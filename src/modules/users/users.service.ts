@@ -38,6 +38,13 @@ export class UsersService {
     return plainToInstance(User, findUsers);
   }
 
+  async findByEmail(email: string) {
+    const findEmail = await this.prisma.user.findFirst({
+      where: { email },
+    });
+    return findEmail;
+  }
+
   async findOne(id: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },
