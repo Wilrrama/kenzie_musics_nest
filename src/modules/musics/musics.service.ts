@@ -7,7 +7,7 @@ import { PrismaService } from '../../database/prisma.service';
 export class MusicsService {
   constructor(private prisma: PrismaService) {}
 
-  async create(createMusicDTO: CreateMusicDTO) {
+  async create(createMusicDTO: CreateMusicDTO, userId: string) {
     const music = new Music();
     Object.assign(music, {
       ...createMusicDTO,
@@ -23,7 +23,11 @@ export class MusicsService {
         year: music.year,
         cover_image: music.cover_image,
         music_url: music.music_url,
-        userId: createMusicDTO.userId,
+        user: {
+          connect: {
+            id: userId,
+          },
+        },
       },
     });
     return music;

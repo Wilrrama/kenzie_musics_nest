@@ -1,13 +1,24 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Get,
+  Param,
+  Post,
+  Request,
+  UseGuards,
+} from '@nestjs/common';
 import { CreateMusicDTO } from './dtos/create-music.dto';
 import { MusicsService } from './musics.service';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 
 @Controller('musics')
 export class MusicsController {
   constructor(private musicsService: MusicsService) {}
   @Post('')
-  create(@Body() createMusicDTO: CreateMusicDTO) {
-    return this.musicsService.create(createMusicDTO);
+  @UseGuards(JwtAuthGuard)
+  create(@Body() createMusicDTO: CreateMusicDTO, @Request() req) {
+    console.log(req.user);
+    return this.musicsService.create(createMusicDTO, req.user.id);
   }
 
   @Get()
