@@ -10,15 +10,21 @@ import {
 import { CreateMusicDTO } from './dtos/create-music.dto';
 import { MusicsService } from './musics.service';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
+import { ApiBearerAuth, ApiTags } from '@nestjs/swagger';
 
+@ApiTags('musics')
 @Controller('musics')
 export class MusicsController {
   constructor(private musicsService: MusicsService) {}
   @Post('')
+  @ApiBearerAuth()
   @UseGuards(JwtAuthGuard)
-  create(@Body() createMusicDTO: CreateMusicDTO, @Request() req) {
+  async create(@Body() createMusicDTO: CreateMusicDTO, @Request() req) {
     console.log(req.user);
-    return this.musicsService.create(createMusicDTO, req.user.id);
+    const userId = req.user.id;
+    const userEmail = req.user.email;
+    const music = await this.musicsService.create(createMusicDTO, userId);
+    return { music, userId, userEmail };
   }
 
   @Get()

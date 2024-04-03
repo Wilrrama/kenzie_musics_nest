@@ -39,7 +39,7 @@ export class MusicsService {
   }
 
   async findOne(id: string) {
-    const music = this.prisma.music.findFirst({ where: { id } });
+    const music = await this.prisma.music.findFirst({ where: { id } });
     return music;
   }
 }
